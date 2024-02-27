@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ShiftApi.Models;
 using ShiftApi.Service;
 
 namespace ShiftApi.Controllers;
 
-[Route("api/[controller]")]
+[Route("[controller]")]
 [ApiController]
 public class ShiftController : ControllerBase
 {
@@ -16,19 +17,68 @@ public class ShiftController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<List<Shift>> GetAllShifts()
+    public async Task<ActionResult<List<Shift>>> GetAllShifts()
     {
-        return Ok(_shiftService.GetAllShifts());
+        var shifts = await _shiftService.GetAllShifts();
+        return Ok(shifts);
     }
 
     [HttpGet("{id}")]
-    public ActionResult<Shift> GetShift(int id)
+    public async Task<ActionResult<Shift>> GetShift(int id)
     {
-        var shift = _shiftService.GetById(id);
+        var shift = await _shiftService.GetById(id);
 
         if (shift is null)
             return NotFound();
 
         return Ok(shift);
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<Shift>> PostShift(Shift shift)
+    {
+        await _shiftService.Post(shift);
+
+        return CreatedAtAction(nameof(GetShift), new { id = shift.ShiftId }, shift);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> PutShift(int id, Shift shift)
+    {
+        if (id != shift.ShiftId)
+        {
+            return BadRequest();
+        }
+
+        try
+        {
+            await _shiftService.Put(shift);
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            if (!_shiftService.ShiftExists(shift))
+            {
+                return NotFound();
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        return NoContent();
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var shift = await _shiftService.FindAsync(id);
+
+        if (shift is null)
+            return NotFound();
+
+        await _shiftService.Delete(shift);
+
+        return NoContent();
     }
 }

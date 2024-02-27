@@ -9,3 +9,12 @@ GET {{ShiftApi_HostAddress}}/api/shift/
 Accept: application/json
 
 ###
+
+PUT {{ShiftApi_HostAddress}}/api/shift/1
+Accept: application/json
+
+{
+
+}
+
+###

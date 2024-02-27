@@ -1,4 +1,8 @@
-﻿using ShiftApi.Models;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using ShiftApi.Models;
 
 namespace ShiftApi.Service;
 
@@ -11,14 +15,47 @@ public class ShiftService
         _context = context;
     }
 
-    public List<Shift> GetAllShifts()
+    public async Task<List<Shift>> GetAllShifts()
     {
-        return _context.Shifts.ToList();
+        var shifts = await _context.Shifts.ToListAsync();
+
+        return shifts;
     }
 
-    public Shift? GetById(int id)
+    public async Task<Shift?> GetById(int id)
     {
-        return _context.Shifts.SingleOrDefault
-            (s => s.ShiftId == id);
+        var shift = await _context.Shifts.SingleOrDefaultAsync(
+            s => s.ShiftId == id);
+        return shift;
+    }
+
+    public async Task Post(Shift shift)
+    {
+        _context.Shifts.Add(shift);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task Put(Shift shift)
+    {
+        _context.Entry(shift).State = EntityState.Modified;
+
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task Delete(Shift shift)
+    {
+        _context.Shifts.Remove(shift);
+        await _context.SaveChangesAsync();
+    }
+
+    internal bool ShiftExists(Shift shift)
+    {
+        return _context.Shifts.Any(s =>  s.ShiftId == shift.ShiftId);
+    }
+
+    internal async Task<Shift?> FindAsync(int id)
+    {
+        var shift = await _context.Shifts.FindAsync(id);
+        return shift;
     }
 }
