@@ -1,0 +1,85 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using ShiftApi.Models;
+using ShiftApi.Service;
+
+namespace ShiftApi.Controllers;
+
+[Route("[controller]")]
+[ApiController]
+public class EmployeeController : ControllerBase
+{
+
+    private readonly EmployeeService _employeeService;
+
+    public EmployeeController(EmployeeService employeeService)
+    {
+        _employeeService = employeeService;
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<List<Employee>>> GetAllEmployees()
+    {
+        var employees = await _employeeService.GetAllEmployees();
+
+        return Ok(employees);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Employee>> GetEmployeeById(int id)
+    {
+        var employee = await _employeeService.GetEmployeeById(id);
+
+        if (employee is null)
+            return NotFound();
+
+        return Ok(employee);
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<Employee>> PostEmployee(Employee employee)
+    {
+        await _employeeService.PostEmployee(employee);
+        return CreatedAtAction(nameof(GetEmployeeById), new { id = employee.EmployeeId }, employee);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateEmployee(int id, Employee employee)
+    {
+        if (id != employee.EmployeeId)
+        {
+            return BadRequest();
+        }
+
+        try
+        {
+            await _employeeService.UpdateEmployee(employee);
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            if (!_employeeService.EmployeeExists(employee))
+            {
+                return NotFound();
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        return NoContent();
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var shift = await _employeeService.FindAsync(id);
+
+        if (shift is null)
+            return NotFound();
+
+        await _employeeService.Delete(shift);
+
+        return NoContent();
+    }
+}

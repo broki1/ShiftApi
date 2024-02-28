@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using ShiftApi.Models;
 using ShiftApi.Service;
 
@@ -18,6 +17,7 @@ public class Program
             opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("ShiftLoggerDb"))
             );
         builder.Services.AddScoped<ShiftService>();
+        builder.Services.AddScoped<EmployeeService>();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();

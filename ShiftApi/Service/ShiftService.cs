@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using ShiftApi.Models;
 
 namespace ShiftApi.Service;
@@ -24,8 +21,7 @@ public class ShiftService
 
     public async Task<Shift?> GetById(int id)
     {
-        var shift = await _context.Shifts.SingleOrDefaultAsync(
-            s => s.ShiftId == id);
+        var shift = await _context.Shifts.FindAsync(id);
         return shift;
     }
 
@@ -50,7 +46,7 @@ public class ShiftService
 
     internal bool ShiftExists(Shift shift)
     {
-        return _context.Shifts.Any(s =>  s.ShiftId == shift.ShiftId);
+        return _context.Shifts.Any(s => s.ShiftId == shift.ShiftId);
     }
 
     internal async Task<Shift?> FindAsync(int id)

@@ -7,8 +7,9 @@ public class Shift
 {
     [Key]
     public int ShiftId { get; set; }
-    [Required]
     public DateTime ShiftStartTime { get; set; }
-    [Required]
     public DateTime ShiftEndTime { get; set; }
+    [ForeignKey("Employee")]
+    public int EmployeeId { get; set; }
+    public Employee Employee { get; set; } = null!;
 }
