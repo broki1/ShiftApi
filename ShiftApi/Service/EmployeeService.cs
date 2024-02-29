@@ -15,13 +15,17 @@ public class EmployeeService
 
     internal async Task<List<Employee>> GetAllEmployees()
     {
-        var employees = await _context.Employees.ToListAsync();
+        var employees = await _context.Employees
+            .Include(e => e.Shifts)
+            .ToListAsync();
         return employees;
     }
 
     internal async Task<Employee?> GetEmployeeById(int id)
     {
-        var employee = await _context.Employees.FindAsync(id);
+        var employee = await _context.Employees
+            .Include (e => e.Shifts)
+            .FirstOrDefaultAsync(e => e.EmployeeId == id);
 
         return employee;
     }

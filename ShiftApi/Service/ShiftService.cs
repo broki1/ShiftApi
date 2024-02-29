@@ -14,14 +14,18 @@ public class ShiftService
 
     public async Task<List<Shift>> GetAllShifts()
     {
-        var shifts = await _context.Shifts.ToListAsync();
+        var shifts = await _context.Shifts
+            .Include(s => s.Employee)
+            .ToListAsync();
 
         return shifts;
     }
 
     public async Task<Shift?> GetById(int id)
     {
-        var shift = await _context.Shifts.FindAsync(id);
+        var shift = await _context.Shifts
+            .Include(s => s.Employee).
+            FirstOrDefaultAsync(s => s.EmployeeId == id);
         return shift;
     }
 

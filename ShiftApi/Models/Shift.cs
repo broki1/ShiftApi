@@ -11,5 +11,5 @@ public class Shift
     public DateTime ShiftEndTime { get; set; }
     [ForeignKey("Employee")]
     public int EmployeeId { get; set; }
-    public Employee Employee { get; set; } = null!;
+    public Employee Employee { get; set; }
 }

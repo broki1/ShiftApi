@@ -61,6 +61,7 @@ public class ShiftController : ControllerBase
             }
             else
             {
+                await Console.Out.WriteLineAsync(ex.Message);
                 throw;
             }
         }
