@@ -6,7 +6,6 @@ internal class Program
 {
     static async Task Main(string[] args)
     {
-        var controller = new ApiController();
-        await controller.GetEmployees();
+        await UserInput.MainMenu();
     }
 }
