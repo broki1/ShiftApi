@@ -1,4 +1,5 @@
-﻿using ShiftApi.Models;
+﻿using ShiftApi.DTOs;
+using ShiftApi.Models;
 using System.Configuration;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -61,7 +62,7 @@ internal class ApiService
         {
             // Get the URI of the created resource.
             Uri returnUrl = response.Headers.Location;
-            Console.WriteLine(returnUrl);
+            await Console.Out.WriteLineAsync("\nShift successfully added. Press Enter to continue.");
         }
 
         Console.ReadLine();
@@ -102,5 +103,22 @@ internal class ApiService
         };
 
         return shift;
+    }
+
+    internal static async Task<List<ShiftDTO>> GetEmployeeShifts(Employee employee)
+    {
+        HttpClient client = new HttpClient();
+        client.DefaultRequestHeaders.Accept.Clear();
+        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+        client.BaseAddress = new Uri(ConfigurationManager.AppSettings.Get("webApiUrl"));
+
+        var json = await client.GetStringAsync($"employee/{employee.EmployeeId}");
+
+        var employeeDTO = JsonSerializer.Deserialize<EmployeeDTO>(json);
+
+        var employeeShifts = employeeDTO.Shifts.ToList();
+
+        return employeeShifts;
     }
 }

@@ -1,4 +1,6 @@
-﻿using ShiftApi.Models;
+﻿using ConsoleTableExt;
+using ShiftApi.DTOs;
+using ShiftApi.Models;
 using ShiftUI.Controllers;
 using Spectre.Console;
 
@@ -61,8 +63,18 @@ internal class VisualizationEngine
                 await ApiService.AddShift(employee, shift);
                 break;
             case "View shifts":
+                var employeeShifts = await ApiService.GetEmployeeShifts(employee);
+                VisualizationEngine.DisplayEmployeeShifts(employeeShifts);
+                Console.WriteLine("\nPress Enter to continue.");
+                Console.ReadLine();
                 break;
         }
+    }
+
+    private static void DisplayEmployeeShifts(List<ShiftDTO> employeeShifts)
+    {
+        Console.Clear();
+        ConsoleTableBuilder.From(employeeShifts).ExportAndWriteLine(TableAligntment.Center);
     }
 
     private static void NewEmployeeMenu()
