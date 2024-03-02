@@ -6,6 +6,6 @@ internal class Program
 {
     static async Task Main(string[] args)
     {
-        await UserInput.MainMenu();
+        await VisualizationEngine.MainMenu();
     }
 }
