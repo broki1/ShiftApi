@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ShiftApi.DTOs;
 using ShiftApi.Models;
 
 namespace ShiftApi.Service;
@@ -13,21 +14,54 @@ public class EmployeeService
         _context = context;
     }
 
-    internal async Task<List<Employee>> GetAllEmployees()
+    internal async Task<List<EmployeeDTO>> GetAllEmployees()
     {
         var employees = await _context.Employees
             .Include(e => e.Shifts)
             .ToListAsync();
-        return employees;
+
+        var employeesDTO = new List<EmployeeDTO>();
+
+        foreach (var e in employees)
+        {
+            var employeeDTO = new EmployeeDTO
+            {
+                EmployeeId = e.EmployeeId,
+                FirstName = e.FirstName,
+                LastName = e.LastName,
+                Shifts = e.Shifts.Select(s => new ShiftDTO
+                {
+                    ShiftId = s.ShiftId,
+                    ShiftStartTime = s.ShiftStartTime,
+                    ShiftEndTime = s.ShiftEndTime
+                }).ToList<ShiftDTO>()
+            };
+
+            employeesDTO.Add(employeeDTO);
+        }
+        return employeesDTO;
     }
 
-    internal async Task<Employee?> GetEmployeeById(int id)
+    internal async Task<EmployeeDTO?> GetEmployeeById(int id)
     {
         var employee = await _context.Employees
             .Include (e => e.Shifts)
             .FirstOrDefaultAsync(e => e.EmployeeId == id);
 
-        return employee;
+        var employeeDTO = new EmployeeDTO
+        {
+            EmployeeId = employee.EmployeeId,
+            FirstName = employee.FirstName,
+            LastName = employee.LastName,
+            Shifts = employee.Shifts.Select(s => new ShiftDTO
+            {
+                ShiftId = s.ShiftId,
+                ShiftStartTime = s.ShiftStartTime,
+                ShiftEndTime = s.ShiftEndTime
+            }).ToList()
+        };
+
+        return employeeDTO;
     }
 
     internal async Task PostEmployee(Employee employee)

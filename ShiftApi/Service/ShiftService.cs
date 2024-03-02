@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ShiftApi.DTOs;
 using ShiftApi.Models;
 
 namespace ShiftApi.Service;
@@ -12,21 +13,34 @@ public class ShiftService
         _context = context;
     }
 
-    public async Task<List<Shift>> GetAllShifts()
+    public async Task<List<ShiftDTO>> GetAllShifts()
     {
         var shifts = await _context.Shifts
             .Include(s => s.Employee)
+            .Select(s => new ShiftDTO
+            {
+                ShiftId = s.ShiftId,
+                ShiftStartTime = s.ShiftStartTime,
+                ShiftEndTime = s.ShiftEndTime
+            })
             .ToListAsync();
 
         return shifts;
     }
 
-    public async Task<Shift?> GetById(int id)
+    public async Task<ShiftDTO?> GetById(int id)
     {
         var shift = await _context.Shifts
-            .Include(s => s.Employee).
-            FirstOrDefaultAsync(s => s.EmployeeId == id);
-        return shift;
+            .Include(s => s.Employee)
+            .FirstOrDefaultAsync(s => s.EmployeeId == id);
+
+        var shiftDTO = new ShiftDTO
+        {
+            ShiftId = shift.ShiftId,
+            ShiftStartTime = shift.ShiftStartTime,
+            ShiftEndTime = shift.ShiftEndTime
+        };
+        return shiftDTO;
     }
 
     public async Task Post(Shift shift)

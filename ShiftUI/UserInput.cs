@@ -1,6 +1,7 @@
 ﻿using ShiftApi.Models;
 using Spectre.Console;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 
 namespace ShiftUI;
 
@@ -46,7 +47,7 @@ internal class UserInput
     internal static DateTime GetDate(string startOrEnd)
     {
         Console.Clear();
-        Console.WriteLine($"Enter the shift {startOrEnd} date (format: MM-dd-yyyy):");
+        Console.WriteLine($"Enter the shift {startOrEnd} date (format: MM-dd-yyyy)");
         var dateString = Console.ReadLine().Trim();
 
         while (!ValidationEngine.ValidDate(dateString))
@@ -67,8 +68,8 @@ internal class UserInput
     internal static TimeSpan GetTime(string startOrEnd)
     {
         Console.Clear();
-        Console.WriteLine($"Enter the shift {startOrEnd} time (format: HH:mm):");
-        var timeString = Console.ReadLine();
+        Console.WriteLine($"Enter the shift {startOrEnd} time (format: HH:mm)");
+        var timeString = Console.ReadLine().Trim();
 
         while(!ValidationEngine.ValidTime(timeString))
         {

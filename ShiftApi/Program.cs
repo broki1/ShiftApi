@@ -12,12 +12,12 @@ public class Program
 
         // Add services to the container.
 
-        builder.Services.AddControllers()
-            .AddJsonOptions(options =>
-            {
-                options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
-                options.JsonSerializerOptions.WriteIndented = true; // For better readability. Optional.
-            });
+        builder.Services.AddControllers();
+            //.AddJsonOptions(options =>
+            //{
+            //    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+            //    options.JsonSerializerOptions.WriteIndented = true; // For better readability. Optional.
+            //})
         builder.Services.AddDbContext<ShiftApiContext>(
             opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("ShiftLoggerDb"))
             );

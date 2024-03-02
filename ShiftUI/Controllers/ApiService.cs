@@ -71,6 +71,7 @@ internal class ApiService
     internal static Shift CreateShift(Employee employee)
     {
         var shiftStartDate = UserInput.GetDate("start");
+
         var shiftStartTime = UserInput.GetTime("start");
 
         var shiftEndTime = UserInput.GetTime("end");

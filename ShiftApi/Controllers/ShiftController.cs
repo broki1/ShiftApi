@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ShiftApi.DTOs;
 using ShiftApi.Models;
 using ShiftApi.Service;
 
@@ -16,14 +17,14 @@ public class ShiftController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<Shift>>> GetAllShifts()
+    public async Task<ActionResult<List<ShiftDTO>>> GetAllShifts()
     {
         var shifts = await _shiftService.GetAllShifts();
         return Ok(shifts);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Shift>> GetShift(int id)
+    public async Task<ActionResult<ShiftDTO>> GetShift(int id)
     {
         var shift = await _shiftService.GetById(id);
 
@@ -34,7 +35,7 @@ public class ShiftController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Shift>> PostShift(Shift shift)
+    public async Task<ActionResult> PostShift(Shift shift)
     {
         await _shiftService.Post(shift);
 

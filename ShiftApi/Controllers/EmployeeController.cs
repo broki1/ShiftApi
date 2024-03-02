@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ShiftApi.DTOs;
 using ShiftApi.Models;
 using ShiftApi.Service;
 
@@ -18,7 +19,7 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<Employee>>> GetAllEmployees()
+    public async Task<ActionResult<List<EmployeeDTO>>> GetAllEmployees()
     {
         var employees = await _employeeService.GetAllEmployees();
 
@@ -26,7 +27,7 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Employee>> GetEmployeeById(int id)
+    public async Task<ActionResult<EmployeeDTO>> GetEmployeeById(int id)
     {
         var employee = await _employeeService.GetEmployeeById(id);
 
@@ -37,7 +38,7 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Employee>> PostEmployee(Employee employee)
+    public async Task<ActionResult> PostEmployee(Employee employee)
     {
         await _employeeService.PostEmployee(employee);
         return CreatedAtAction(nameof(GetEmployeeById), new { id = employee.EmployeeId }, employee);
