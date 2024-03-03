@@ -9,6 +9,41 @@ namespace ShiftUI.Controllers;
 
 internal class ApiService
 {
+
+    internal static async Task CreateEmployee()
+    {
+        var firstName = UserInput.GetName("first");
+        if (firstName == "0") return;
+        var lastName = UserInput.GetName("last");
+        if (lastName == "0") return;
+
+        var employee = new Employee
+        {
+            FirstName = firstName,
+            LastName = lastName,
+            Shifts = new List<Shift>()
+        };
+
+        HttpClient client = new HttpClient();
+        client.DefaultRequestHeaders.Accept.Clear();
+        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+        client.BaseAddress = new Uri(ConfigurationManager.AppSettings.Get("webApiUrl"));
+
+        HttpResponseMessage responseMessage = await client.PostAsJsonAsync("employee", employee);
+
+        if (responseMessage.IsSuccessStatusCode)
+        {
+            Console.WriteLine("\nEmployee created successfully, press Enter to continune.");
+            Console.ReadLine();
+        }
+        else
+        {
+            Console.WriteLine("\nEmployee created unsuccessfully, press Enter to continue.");
+            Console.ReadLine();
+        }
+    }
+
     internal async Task<List<String>> GetEmployees()
     {
         HttpClient client = new HttpClient();
@@ -165,9 +200,37 @@ internal class ApiService
 
         if (responseMessage.IsSuccessStatusCode)
         {
-            Console.WriteLine(responseMessage.Content);
+            Console.WriteLine("\nShift updated successfully, press Enter to continue");
 
             Console.ReadLine();
         }
+        else
+        {
+            Console.WriteLine("\nShift not updated successfully, press Enter to continue");
+        }
+        client.Dispose();
+    }
+
+    internal static async Task DeleteShift(ShiftDTO shiftToDelete)
+    {
+        HttpClient client = new HttpClient();
+        client.DefaultRequestHeaders.Accept.Clear();
+        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+        client.BaseAddress = new Uri(ConfigurationManager.AppSettings.Get("webApiUrl"));
+
+        HttpResponseMessage responseMessage = await client.DeleteAsync(client.BaseAddress + $"shift/{shiftToDelete.ShiftId}");
+
+        if (responseMessage.IsSuccessStatusCode)
+        {
+            Console.WriteLine("\nShift deleted successfully, press Enter to continune.");
+            Console.ReadLine();
+        }
+        else
+        {
+            Console.WriteLine("\nShift delete unsuccessful, press Enter to continue.");
+            Console.ReadLine();
+        }
+        client.Dispose();
     }
 }

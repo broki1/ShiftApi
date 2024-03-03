@@ -25,7 +25,11 @@ internal class VisualizationEngine
                     await VisualizationEngine.CurrentEmployeeMenu();
                     break;
                 case "New employee":
-                    VisualizationEngine.NewEmployeeMenu();
+                    await ApiService.CreateEmployee();
+                    break;
+                case "Update employee":
+                    break;
+                case "Delete employee":
                     break;
                 case "Quit application":
                     endApplication = true;
@@ -52,10 +56,12 @@ internal class VisualizationEngine
 
     private static async Task EmployeeShiftLoggerMenu(Employee employee)
     {
+        var service = new ApiService();
         var exitEmployeeShiftLoggerMenu = false;
 
         while (!exitEmployeeShiftLoggerMenu)
         {
+            employee = await service.GetEmployee(employee.EmployeeId);
             Console.Clear();
 
             var menuChoice = UserInput.GetEmployeeShiftLoggerMenuChoice(employee);
@@ -71,11 +77,28 @@ internal class VisualizationEngine
                     VisualizationEngine.DisplayEmployeeShifts(employeeShifts, employee.FirstName, employee.LastName);
                     break;
                 case "Update shift":
+                    if (employee.Shifts.Count == 0)
+                    {
+                        await Console.Out.WriteLineAsync("\nNo shifts to update, press Enter to continue.");
+                        Console.ReadLine();
+                        continue;
+                    }
                     var shiftToUpdateId = await ApiService.GetShiftId(employee);
                     var shiftToUpdate = await ApiService.GetShift(shiftToUpdateId);
                     await ApiService.UpdateShift(shiftToUpdate);
                     break;
                 case "Delete shift":
+
+                    if (employee.Shifts.Count == 0)
+                    {
+                        await Console.Out.WriteLineAsync("\nNo shifts to delete, press Enter to continue.");
+                        Console.ReadLine();
+                        continue;
+                    }
+
+                    var shiftToDeleteId = await ApiService.GetShiftId(employee);
+                    var shiftToDelete = await ApiService.GetShift(shiftToDeleteId);
+                    await ApiService.DeleteShift(shiftToDelete);
                     break;
                 case "Return to main menu":
                     exitEmployeeShiftLoggerMenu = true;
@@ -93,10 +116,5 @@ internal class VisualizationEngine
 
         Console.WriteLine("Press any key to continue");
         Console.ReadKey();
-    }
-
-    private static void NewEmployeeMenu()
-    {
-        throw new NotImplementedException();
     }
 }

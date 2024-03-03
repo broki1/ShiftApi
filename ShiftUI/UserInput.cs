@@ -143,4 +143,11 @@ internal class UserInput
 
         return updatedShift;
     }
+
+    internal static string GetName(string firstOrLast)
+    {
+        var name = AnsiConsole.Ask<string>($"Enter {firstOrLast} name (press 0 to return to main menu):");
+
+        return name;
+    }
 }
