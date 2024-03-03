@@ -43,20 +43,22 @@ public class ShiftController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutShift(int id, Shift shift)
+    public async Task<IActionResult> PutShift(int id, ShiftDTO shiftDTO)
     {
-        if (id != shift.ShiftId)
+        var shift = await _shiftService.FindAsync(id);
+
+        if (id != shiftDTO.ShiftId)
         {
             return BadRequest();
         }
 
         try
         {
-            await _shiftService.Put(shift);
+            await _shiftService.Put(id, shiftDTO);
         }
-        catch (DbUpdateConcurrencyException ex)
+        catch (Exception ex)
         {
-            if (!_shiftService.ShiftExists(shift))
+            if (shift is null || !_shiftService.ShiftExists(shift))
             {
                 return NotFound();
             }

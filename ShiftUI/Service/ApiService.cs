@@ -121,4 +121,53 @@ internal class ApiService
 
         return employeeShifts;
     }
+
+    internal static async Task<int> GetShiftId(Employee employee)
+    {
+        var employeeShifts = await ApiService.GetEmployeeShifts(employee);
+
+        var shifts = employeeShifts.Select(s => $"{s.ShiftId}. {s.ShiftStartTime} - {s.ShiftEndTime}").ToList();
+
+        var shiftId = UserInput.GetShiftChoice(shifts);
+
+        return shiftId;
+    }
+
+    internal static async Task<ShiftDTO> GetShift(int shiftToUpdateId)
+    {
+        HttpClient client = new HttpClient();
+
+        client.DefaultRequestHeaders.Accept.Clear();
+        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+        client.BaseAddress = new Uri(ConfigurationManager.AppSettings.Get("webApiUrl"));
+
+        var json = await client.GetStringAsync($"shift/{shiftToUpdateId}");
+
+        var shift = JsonSerializer.Deserialize<ShiftDTO>(json);
+
+        client.Dispose();
+
+        return shift;
+    }
+
+    internal static async Task UpdateShift(ShiftDTO shiftToUpdate)
+    {
+        var updatedShift = UserInput.GetUpdatedShift(shiftToUpdate);
+
+        HttpClient client = new HttpClient();
+        client.DefaultRequestHeaders.Accept.Clear();
+        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+        client.BaseAddress = new Uri(ConfigurationManager.AppSettings.Get("webApiUrl"));
+
+        HttpResponseMessage responseMessage = await client.PutAsJsonAsync($"shift/{updatedShift.ShiftId}", updatedShift);
+
+        if (responseMessage.IsSuccessStatusCode)
+        {
+            Console.WriteLine(responseMessage.Content);
+
+            Console.ReadLine();
+        }
+    }
 }

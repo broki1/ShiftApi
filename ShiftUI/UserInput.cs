@@ -1,4 +1,5 @@
-﻿using ShiftApi.Models;
+﻿using ShiftApi.DTOs;
+using ShiftApi.Models;
 using Spectre.Console;
 using System.Globalization;
 using System.Runtime.CompilerServices;
@@ -39,7 +40,10 @@ internal class UserInput
             .Title($"{employee.FirstName.ToUpper()} {employee.LastName.ToUpper()} - #{employee.EmployeeId.ToString().PadLeft(4, '0')}")
             .AddChoices(
                 "Add shift",
-                "View shifts"));
+                "View shifts",
+                "Update shift",
+                "Delete shift",
+                "Return to main menu"));
 
         return menuChoice;
     }
@@ -58,10 +62,6 @@ internal class UserInput
 
         var startDate = DateTime.ParseExact(dateString, "MM-dd-yyyy", new CultureInfo("en-US"), DateTimeStyles.None);
 
-        Console.WriteLine(startDate);
-
-        Console.ReadKey();
-
         return startDate;
     }
 
@@ -71,7 +71,7 @@ internal class UserInput
         Console.WriteLine($"Enter the shift {startOrEnd} time (format: HH:mm)");
         var timeString = Console.ReadLine().Trim();
 
-        while(!ValidationEngine.ValidTime(timeString))
+        while (!ValidationEngine.ValidTime(timeString))
         {
             Console.WriteLine($"\nInvalid input. Enter the shift {startOrEnd} time in HH:mm format:");
             timeString = Console.ReadLine();
@@ -80,5 +80,67 @@ internal class UserInput
         var startTime = TimeSpan.ParseExact(timeString, "h\\:mm", new CultureInfo("en-US"), TimeSpanStyles.None);
 
         return startTime;
+    }
+
+    internal static int GetShiftChoice(List<string> shifts)
+    {
+        var shiftChoice = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+            .AddChoices(shifts)
+            );
+
+        var id = int.Parse(shiftChoice.Split(".")[0]);
+
+        return id;
+    }
+
+    internal static ShiftDTO GetUpdatedShift(ShiftDTO shiftToUpdate)
+    {
+        Console.Clear();
+        Console.WriteLine(shiftToUpdate.ShiftStartTime.Date.ToShortDateString() + "\n");
+        var shiftStartDate = AnsiConsole.Confirm("Update date of shift?") ? UserInput.GetDate("start") : shiftToUpdate.ShiftStartTime.Date;
+
+        Console.Clear();
+        Console.WriteLine(shiftToUpdate.ShiftStartTime.TimeOfDay.ToString() + "\n");
+        var shiftStartTime = AnsiConsole.Confirm("Update start time of shift?") ? UserInput.GetTime("start") : TimeSpan.Parse(shiftToUpdate.ShiftStartTime.TimeOfDay.ToString());
+
+        Console.Clear();
+        Console.WriteLine(shiftToUpdate.ShiftEndTime.TimeOfDay.ToString() + "\n");
+        var shiftEndTime = AnsiConsole.Confirm("Update end time of shift?") ? UserInput.GetTime("end") : TimeSpan.Parse(shiftToUpdate.ShiftEndTime.TimeOfDay.ToString());
+
+        while (!ValidationEngine.ValidShiftEndTime(shiftStartTime, shiftEndTime))
+        {
+            Console.Clear();
+            Console.WriteLine("\nInvalid shift. Shifts cannot be longer than 16 hours.\nPress any key to continue.");
+            Console.ReadKey();
+
+            Console.Clear();
+            Console.WriteLine(shiftToUpdate.ShiftStartTime.Date.ToShortDateString() + "\n");
+            shiftStartDate = AnsiConsole.Confirm("Update date of shift?") ? UserInput.GetDate("start") : shiftToUpdate.ShiftStartTime.Date;
+
+            Console.Clear();
+            Console.WriteLine(shiftToUpdate.ShiftStartTime.TimeOfDay.ToString() + "\n");
+            shiftStartTime = AnsiConsole.Confirm("Update start time of shift?") ? UserInput.GetTime("start") : TimeSpan.Parse(shiftToUpdate.ShiftStartTime.TimeOfDay.ToString());
+
+            Console.Clear();
+            Console.WriteLine(shiftToUpdate.ShiftEndTime.TimeOfDay.ToString() + "\n");
+            shiftEndTime = AnsiConsole.Confirm("Update end time of shift?") ? UserInput.GetTime("end") : TimeSpan.Parse(shiftToUpdate.ShiftEndTime.TimeOfDay.ToString());
+        }
+
+        var shiftStartDateAndTime = new DateTime(shiftStartDate.Year, shiftStartDate.Month, shiftStartDate.Day,
+        shiftStartTime.Hours, shiftStartTime.Minutes, 0);
+
+        var timeDifference = Helper.GetTimeDifference(shiftStartTime, shiftEndTime);
+
+        var shiftEndDateAndTime = shiftStartDateAndTime.AddMinutes(timeDifference.TotalMinutes);
+
+        var updatedShift = new ShiftDTO
+        {
+            ShiftId = shiftToUpdate.ShiftId,
+            ShiftStartTime = shiftStartDateAndTime,
+            ShiftEndTime = shiftEndDateAndTime
+        };
+
+        return updatedShift;
     }
 }

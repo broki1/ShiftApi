@@ -52,29 +52,47 @@ internal class VisualizationEngine
 
     private static async Task EmployeeShiftLoggerMenu(Employee employee)
     {
-        Console.Clear();
+        var exitEmployeeShiftLoggerMenu = false;
 
-        var menuChoice = UserInput.GetEmployeeShiftLoggerMenuChoice(employee);
-
-        switch (menuChoice)
+        while (!exitEmployeeShiftLoggerMenu)
         {
-            case "Add shift":
-                var shift = ApiService.CreateShift(employee);
-                await ApiService.AddShift(employee, shift);
-                break;
-            case "View shifts":
-                var employeeShifts = await ApiService.GetEmployeeShifts(employee);
-                VisualizationEngine.DisplayEmployeeShifts(employeeShifts);
-                Console.WriteLine("\nPress Enter to continue.");
-                Console.ReadLine();
-                break;
+            Console.Clear();
+
+            var menuChoice = UserInput.GetEmployeeShiftLoggerMenuChoice(employee);
+
+            switch (menuChoice)
+            {
+                case "Add shift":
+                    var shift = ApiService.CreateShift(employee);
+                    await ApiService.AddShift(employee, shift);
+                    break;
+                case "View shifts":
+                    var employeeShifts = await ApiService.GetEmployeeShifts(employee);
+                    VisualizationEngine.DisplayEmployeeShifts(employeeShifts, employee.FirstName, employee.LastName);
+                    break;
+                case "Update shift":
+                    var shiftToUpdateId = await ApiService.GetShiftId(employee);
+                    var shiftToUpdate = await ApiService.GetShift(shiftToUpdateId);
+                    await ApiService.UpdateShift(shiftToUpdate);
+                    break;
+                case "Delete shift":
+                    break;
+                case "Return to main menu":
+                    exitEmployeeShiftLoggerMenu = true;
+                    break;
+            }
         }
     }
 
-    private static void DisplayEmployeeShifts(List<ShiftDTO> employeeShifts)
+    private static void DisplayEmployeeShifts(List<ShiftDTO> employeeShifts, string firstName, string lastName)
     {
         Console.Clear();
-        ConsoleTableBuilder.From(employeeShifts).ExportAndWriteLine(TableAligntment.Center);
+        ConsoleTableBuilder.From(employeeShifts)
+            .WithColumn("Shift ID", "Start Date & Time", "End Date & Time")
+            .ExportAndWriteLine(TableAligntment.Center);
+
+        Console.WriteLine("Press any key to continue");
+        Console.ReadKey();
     }
 
     private static void NewEmployeeMenu()

@@ -32,7 +32,7 @@ public class ShiftService
     {
         var shift = await _context.Shifts
             .Include(s => s.Employee)
-            .FirstOrDefaultAsync(s => s.EmployeeId == id);
+            .FirstOrDefaultAsync(s => s.ShiftId == id);
 
         var shiftDTO = new ShiftDTO
         {
@@ -49,9 +49,14 @@ public class ShiftService
         await _context.SaveChangesAsync();
     }
 
-    public async Task Put(Shift shift)
+    public async Task Put(int id, ShiftDTO shiftDTO)
     {
-        _context.Entry(shift).State = EntityState.Modified;
+        var shift = await _context.Shifts.FindAsync(id);
+
+        shift.ShiftStartTime = shiftDTO.ShiftStartTime;
+        shift.ShiftEndTime = shiftDTO.ShiftEndTime;
+
+        _context.Shifts.Update(shift);
 
         await _context.SaveChangesAsync();
     }
