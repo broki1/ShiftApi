@@ -28,8 +28,13 @@ internal class VisualizationEngine
                     await ApiService.CreateEmployee();
                     break;
                 case "Update employee":
+                    var employees = await ApiService.GetEmployees();
+                    var employeeId = UserInput.GetEmployeeChoiceById(employees);
+                    var employee = await ApiService.GetEmployee(employeeId);
+                    await ApiService.UpdateEmployee(employee);
                     break;
                 case "Delete employee":
+                    await ApiService.DeleteEmployee();
                     break;
                 case "Quit application":
                     endApplication = true;
@@ -43,12 +48,11 @@ internal class VisualizationEngine
     {
         Console.Clear();
 
-        var service = new ApiService();
-        var employees = await service.GetEmployees();
+        var employees = await ApiService.GetEmployees();
 
         var employeeId = UserInput.GetEmployeeChoiceById(employees);
 
-        var employee = await service.GetEmployee(employeeId);
+        var employee = await ApiService.GetEmployee(employeeId);
 
         await VisualizationEngine.EmployeeShiftLoggerMenu(employee);
 
@@ -61,7 +65,7 @@ internal class VisualizationEngine
 
         while (!exitEmployeeShiftLoggerMenu)
         {
-            employee = await service.GetEmployee(employee.EmployeeId);
+            employee = await ApiService.GetEmployee(employee.EmployeeId);
             Console.Clear();
 
             var menuChoice = UserInput.GetEmployeeShiftLoggerMenuChoice(employee);
@@ -70,6 +74,7 @@ internal class VisualizationEngine
             {
                 case "Add shift":
                     var shift = ApiService.CreateShift(employee);
+                    if (shift is null) continue;
                     await ApiService.AddShift(employee, shift);
                     break;
                 case "View shifts":

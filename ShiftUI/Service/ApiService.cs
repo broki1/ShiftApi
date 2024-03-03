@@ -1,5 +1,6 @@
 ﻿using ShiftApi.DTOs;
 using ShiftApi.Models;
+using Spectre.Console;
 using System.Configuration;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -44,7 +45,7 @@ internal class ApiService
         }
     }
 
-    internal async Task<List<String>> GetEmployees()
+    internal static async Task<List<String>> GetEmployees()
     {
         HttpClient client = new HttpClient();
         client.DefaultRequestHeaders.Accept.Clear();
@@ -64,7 +65,7 @@ internal class ApiService
         return employeesList;
     }
 
-    internal async Task<Employee> GetEmployee(int id)
+    internal static async Task<Employee> GetEmployee(int id)
     {
         HttpClient client = new HttpClient();
         client.DefaultRequestHeaders.Accept.Clear();
@@ -104,13 +105,19 @@ internal class ApiService
 
     }
 
-    internal static Shift CreateShift(Employee employee)
+    internal static Shift? CreateShift(Employee employee)
     {
         var shiftStartDate = UserInput.GetDate("start");
 
+        if (shiftStartDate == DateTime.MinValue)  return null;
+
         var shiftStartTime = UserInput.GetTime("start");
 
+        if (shiftStartTime == TimeSpan.Zero) return null;
+
         var shiftEndTime = UserInput.GetTime("end");
+
+        if (shiftEndTime == TimeSpan.Zero) return null;
 
         while (!ValidationEngine.ValidShiftEndTime(shiftStartTime, shiftEndTime))
         {
@@ -118,9 +125,13 @@ internal class ApiService
             Console.ReadKey();
 
             shiftStartDate = UserInput.GetDate("start");
+            if (shiftStartDate == DateTime.MinValue) return null;
+
             shiftStartTime = UserInput.GetTime("start");
+            if (shiftStartTime == TimeSpan.Zero) return null;
 
             shiftEndTime = UserInput.GetTime("end");
+            if (shiftEndTime == TimeSpan.Zero) return null;
         }
 
         var shiftStartDateAndTime = new DateTime(shiftStartDate.Year, shiftStartDate.Month, shiftStartDate.Day,
@@ -232,5 +243,42 @@ internal class ApiService
             Console.ReadLine();
         }
         client.Dispose();
+    }
+
+    internal static async Task UpdateEmployee(Employee employee)
+    {
+        var updatedFirstName = AnsiConsole.Confirm("Update first name?") ? UserInput.GetName("first") : employee.FirstName;
+        var updatedLastName = AnsiConsole.Confirm("Update last name?") ? UserInput.GetName("last") : employee.LastName;
+
+        var employeeDTO = new EmployeeUpdateDTO
+        {
+            EmployeeId = employee.EmployeeId,
+            FirstName = updatedFirstName,
+            LastName = updatedLastName
+        };
+
+        HttpClient client = new HttpClient();
+        client.DefaultRequestHeaders.Accept.Clear();
+        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        client.BaseAddress = new Uri(ConfigurationManager.AppSettings.Get("webApiUrl"));
+
+        HttpResponseMessage responseMessage = await client.PutAsJsonAsync($"employee/{employeeDTO.EmployeeId}", employeeDTO);
+
+        if (responseMessage.IsSuccessStatusCode)
+        {
+            Console.WriteLine("\nEmployee updated successfully, press Enter to continue");
+
+            Console.ReadLine();
+        }
+        else
+        {
+            Console.WriteLine("\nEmployee not updated successfully, press Enter to continue");
+        }
+        client.Dispose();
+    }
+
+    internal static Task DeleteEmployee()
+    {
+        throw new NotImplementedException();
     }
 }

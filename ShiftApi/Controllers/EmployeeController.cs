@@ -45,18 +45,20 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateEmployee(int id, Employee employee)
+    public async Task<IActionResult> UpdateEmployee(int id, EmployeeUpdateDTO employeeUpdateDTO)
     {
-        if (id != employee.EmployeeId)
+        var employee = await _employeeService.FindAsync(id);
+
+        if (id != employeeUpdateDTO.EmployeeId)
         {
             return BadRequest();
         }
 
         try
         {
-            await _employeeService.UpdateEmployee(employee);
+            await _employeeService.UpdateEmployee(id, employeeUpdateDTO);
         }
-        catch (DbUpdateConcurrencyException ex)
+        catch (Exception ex)
         {
             if (!_employeeService.EmployeeExists(employee))
             {

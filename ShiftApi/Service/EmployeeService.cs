@@ -70,9 +70,15 @@ public class EmployeeService
         await _context.SaveChangesAsync();
     }
 
-    internal async Task UpdateEmployee(Employee employee)
+    internal async Task UpdateEmployee(int id, EmployeeUpdateDTO employeeDTO)
     {
-        _context.Entry(employee).State = EntityState.Modified;
+        var employee = await _context.Employees.FindAsync(id);
+
+        employee.FirstName = employeeDTO.FirstName;
+        employee.LastName = employeeDTO.LastName;
+
+        _context.Employees.Update(employee);
+
         await _context.SaveChangesAsync();
     }
 

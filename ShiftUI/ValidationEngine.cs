@@ -11,6 +11,7 @@ internal class ValidationEngine
 {
     internal static bool ValidDate(string date)
     {
+        if (string.IsNullOrWhiteSpace(date)) { return true; }
         return DateTime.TryParseExact(date, "MM-dd-yyyy", new CultureInfo("en-US"), DateTimeStyles.None, out _);
     }
 

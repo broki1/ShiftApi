@@ -1,4 +1,5 @@
-﻿using ShiftApi.DTOs;
+﻿using Microsoft.IdentityModel.Tokens;
+using ShiftApi.DTOs;
 using ShiftApi.Models;
 using Spectre.Console;
 using System.Globalization;
@@ -15,6 +16,8 @@ internal class UserInput
             .AddChoices(
                 "Current employee",
                 "New employee",
+                "Update employee",
+                "Delete employee",
                 "Quit application"
                 )
             );
@@ -51,13 +54,17 @@ internal class UserInput
     internal static DateTime GetDate(string startOrEnd)
     {
         Console.Clear();
-        Console.WriteLine($"Enter the shift {startOrEnd} date (format: MM-dd-yyyy)");
+        Console.WriteLine($"Enter the shift {startOrEnd} date (format: MM-dd-yyyy), press Enter to return to main menu:");
         var dateString = Console.ReadLine().Trim();
+
+        if (dateString.IsNullOrEmpty()) return new DateTime();
 
         while (!ValidationEngine.ValidDate(dateString))
         {
-            Console.WriteLine($"\nInvalid input. Enter the shift {startOrEnd} date in MM-dd-yyyy format:");
+            Console.WriteLine($"\nInvalid input. Enter the shift {startOrEnd} date in MM-dd-yyyy format, press Enter to return to main menu:");
             dateString = Console.ReadLine().Trim();
+
+            if (dateString.IsNullOrEmpty()) return new DateTime();
         }
 
         var startDate = DateTime.ParseExact(dateString, "MM-dd-yyyy", new CultureInfo("en-US"), DateTimeStyles.None);
@@ -68,13 +75,17 @@ internal class UserInput
     internal static TimeSpan GetTime(string startOrEnd)
     {
         Console.Clear();
-        Console.WriteLine($"Enter the shift {startOrEnd} time (format: HH:mm)");
+        Console.WriteLine($"Enter the shift {startOrEnd} time (format: HH:mm), press Enter to return to main menu:");
         var timeString = Console.ReadLine().Trim();
+
+        if (timeString.IsNullOrEmpty()) return new TimeSpan();
 
         while (!ValidationEngine.ValidTime(timeString))
         {
             Console.WriteLine($"\nInvalid input. Enter the shift {startOrEnd} time in HH:mm format:");
             timeString = Console.ReadLine();
+
+            if (timeString.IsNullOrEmpty()) return new TimeSpan();
         }
 
         var startTime = TimeSpan.ParseExact(timeString, "h\\:mm", new CultureInfo("en-US"), TimeSpanStyles.None);
@@ -146,8 +157,11 @@ internal class UserInput
 
     internal static string GetName(string firstOrLast)
     {
+        Console.Clear();
+
         var name = AnsiConsole.Ask<string>($"Enter {firstOrLast} name (press 0 to return to main menu):");
 
+        Console.Clear();
         return name;
     }
 }
