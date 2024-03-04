@@ -277,8 +277,26 @@ internal class ApiService
         client.Dispose();
     }
 
-    internal static Task DeleteEmployee()
+    internal static async Task DeleteEmployee(int employeeId)
     {
-        throw new NotImplementedException();
+        HttpClient client = new HttpClient();
+        client.DefaultRequestHeaders.Accept.Clear();
+        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+        client.BaseAddress = new Uri(ConfigurationManager.AppSettings.Get("webApiUrl"));
+
+        HttpResponseMessage responseMessage = await client.DeleteAsync(client.BaseAddress + $"employee/{employeeId}");
+
+        if (responseMessage.IsSuccessStatusCode)
+        {
+            Console.WriteLine("\nShift deleted successfully, press Enter to continune.");
+            Console.ReadLine();
+        }
+        else
+        {
+            Console.WriteLine("\nShift delete unsuccessful, press Enter to continue.");
+            Console.ReadLine();
+        }
+        client.Dispose();
     }
 }

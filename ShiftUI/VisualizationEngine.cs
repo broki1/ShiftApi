@@ -34,7 +34,9 @@ internal class VisualizationEngine
                     await ApiService.UpdateEmployee(employee);
                     break;
                 case "Delete employee":
-                    await ApiService.DeleteEmployee();
+                    var employeeList = await ApiService.GetEmployees();
+                    var employeeIdToBeDeleted = UserInput.GetEmployeeChoiceById(employeeList);
+                    await ApiService.DeleteEmployee(employeeIdToBeDeleted);
                     break;
                 case "Quit application":
                     endApplication = true;
